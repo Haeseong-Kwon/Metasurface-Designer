@@ -19,16 +19,25 @@ export const PhaseMap2D: React.FC<PhaseMap2DProps> = ({ data, lensRadius }) => {
     useEffect(() => {
         if (!canvasRef.current || !data) return;
 
-        const ctx = canvasRef.current.getContext('2d');
+        const ctx = canvasRef.current.getContext('2d', { alpha: false });
         if (!ctx) return;
 
-        const { phaseMap, gridX, gridY } = data;
+        const { phaseMap } = data;
         const size = phaseMap.length;
         const canvasSize = canvasRef.current.width;
         const pixelSize = canvasSize / size;
 
-        // Clear canvas
-        ctx.clearRect(0, 0, canvasSize, canvasSize);
+        // Scientific Colormap (Turbo-like approximation)
+        const getTurboColor = (v: number) => {
+            // v: 0.0 to 1.0 (phase normalized)
+            const r = v < 0.5 ? 0 : Math.min(255, (v - 0.5) * 510);
+            const g = v < 0.5 ? Math.min(255, v * 510) : Math.min(255, (1.0 - v) * 510);
+            const b = v > 0.5 ? 0 : Math.min(255, (0.5 - v) * 510);
+
+            // More vibrant spectral approximation
+            const hue = v * 240; // 0 (Red) to 240 (Blue)
+            return `hsl(${240 - hue}, 100%, 50%)`;
+        };
 
         // Render heatmap
         for (let i = 0; i < size; i++) {
@@ -37,19 +46,18 @@ export const PhaseMap2D: React.FC<PhaseMap2DProps> = ({ data, lensRadius }) => {
                 const x = i * pixelSize;
                 const y = j * pixelSize;
 
-                // 위상값(0 ~ 2pi)을 HSL 색상으로 매핑 (Spectral colormap 느낌)
-                const hue = (phase / (2 * Math.PI)) * 280; // 0 (Red) ~ 280 (Purple)
-                ctx.fillStyle = `hsl(${hue}, 70%, 50%)`;
-
+                // Normalize phase [0, 2pi] -> [0, 1]
+                const normPhase = phase / (2 * Math.PI);
+                ctx.fillStyle = getTurboColor(normPhase);
                 ctx.fillRect(x, y, pixelSize + 0.5, pixelSize + 0.5);
             }
         }
 
-        // Aperture Circle Overlay
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-        ctx.lineWidth = 2;
+        // Aperture Circle Overlay Refinement
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2, 0, Math.PI * 2);
+        ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - 1, 0, Math.PI * 2);
         ctx.stroke();
 
     }, [data]);

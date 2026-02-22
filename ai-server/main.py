@@ -7,7 +7,11 @@ from pydantic import BaseModel, Field
 from contextlib import asynccontextmanager
 from typing import List, Dict
 
-from model import SurrogateModel
+try:
+    from model import SurrogateModel
+except ImportError:
+    from .model import SurrogateModel
+
 
 # --- 모델 및 스케일러 로딩 ---
 MODEL_PATH = "ai-server/models/surrogate_model.pth"

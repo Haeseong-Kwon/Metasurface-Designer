@@ -33,15 +33,21 @@ function MetaAtoms({ data, lensRadius }: MetaArray3DProps) {
 
                 const r = Math.sqrt(x * x + y * y);
                 if (r <= lensRadius) {
-                    // 위상에 따른 높이 또는 색상 변화 (시각적 구분)
-                    const height = 0.6; // 고정 높이 (um)
-                    const hue = (phase / (2 * Math.PI)) * 280;
-                    const color = new THREE.Color(`hsl(${hue}, 70%, 50%)`);
+                    // Normalize phase [0, 2pi] -> [0, 1]
+                    const normPhase = phase / (2 * Math.PI);
+
+                    // Dynamic radius modulation: phase가 클수록 기둥이 두꺼워지도록 (또는 작아지도록)
+                    // 현실적인 디자인: Radius 50nm ~ 200nm (0.05 ~ 0.2 um)
+                    const scale = 0.4 + normPhase * 1.2;
+
+                    // Color sync with 2D map
+                    const hue = 240 - (normPhase * 240);
+                    const color = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
 
                     tempInstances.push({
                         position: [x, 0, y] as [number, number, number],
                         color: color,
-                        scale: 1
+                        scale: scale
                     });
                     atomCount++;
                 }
@@ -55,6 +61,8 @@ function MetaAtoms({ data, lensRadius }: MetaArray3DProps) {
         if (!meshRef.current) return;
         const matrix = new THREE.Matrix4();
         instances.forEach((inst, i) => {
+            // Apply scale to the matrix
+            matrix.makeScale(inst.scale, 1, inst.scale);
             matrix.setPosition(inst.position[0], inst.position[1], inst.position[2]);
             meshRef.current?.setMatrixAt(i, matrix);
             meshRef.current?.setColorAt(i, inst.color);
