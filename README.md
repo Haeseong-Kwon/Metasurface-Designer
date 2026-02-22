@@ -3,7 +3,7 @@
 AI 및 최적화 알고리즘 기반 메타표면(Metasurface) 역설계(Inverse Design) 및 시각화 플랫폼
 
 <div align="center">
-  <img src="metasurface_demo.webp" width="85%" alt="MetaSurface Designer Demo">
+  <img src="metasurface_demo.gif" width="85%" alt="MetaSurface Designer Demo">
   <p align="center">
     <em>Surrogate Model을 통해 사용자가 입력한 목표 파장 및 초점 거리에 최적화된 메타-원자 배열(Phase Map)을 실시간으로 역설계하는 구동 화면입니다. (Keywords: Target Phase Profile, Real-time Inverse Design, Surrogate Model 기반 추론)</em>
   </p>
