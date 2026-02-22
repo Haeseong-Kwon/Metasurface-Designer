@@ -13,7 +13,7 @@ interface MetaArray3DProps {
 
 /**
  * MetaAtoms
- * InstancedMesh를 사용하여 수만 개의 나노 기둥을 효율적으로 렌더링합니다.
+ * Professional-grade visualization using high-fidelity materials and optimized instancing.
  */
 function MetaAtoms({ data, lensRadius }: MetaArray3DProps) {
     const meshRef = useRef<THREE.InstancedMesh>(null);
@@ -33,16 +33,16 @@ function MetaAtoms({ data, lensRadius }: MetaArray3DProps) {
 
                 const r = Math.sqrt(x * x + y * y);
                 if (r <= lensRadius) {
-                    // Normalize phase [0, 2pi] -> [0, 1]
                     const normPhase = phase / (2 * Math.PI);
 
-                    // Dynamic radius modulation: phase가 클수록 기둥이 두꺼워지도록 (또는 작아지도록)
-                    // 현실적인 디자인: Radius 50nm ~ 200nm (0.05 ~ 0.2 um)
-                    const scale = 0.4 + normPhase * 1.2;
+                    // Radius modulation for realistic nanopillars (50nm to 200nm)
+                    const scale = 0.5 + normPhase * 1.5;
 
-                    // Color sync with 2D map
-                    const hue = 240 - (normPhase * 240);
-                    const color = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+                    // Match Professional Colormap from 2D view
+                    const hue = 280 - (normPhase * 280);
+                    const saturation = 85 + (Math.sin(normPhase * Math.PI) * 15);
+                    const lightness = 45 + (Math.cos(normPhase * Math.PI - Math.PI) * 15);
+                    const color = new THREE.Color(`hsl(${hue}, ${saturation}%, ${lightness}%)`);
 
                     tempInstances.push({
                         position: [x, 0, y] as [number, number, number],
@@ -56,12 +56,10 @@ function MetaAtoms({ data, lensRadius }: MetaArray3DProps) {
         return { instances: tempInstances, count: atomCount };
     }, [data, lensRadius]);
 
-    // InstancedMesh 직접 제어 (성능 극대화)
     useFrame(() => {
         if (!meshRef.current) return;
         const matrix = new THREE.Matrix4();
         instances.forEach((inst, i) => {
-            // Apply scale to the matrix
             matrix.makeScale(inst.scale, 1, inst.scale);
             matrix.setPosition(inst.position[0], inst.position[1], inst.position[2]);
             meshRef.current?.setMatrixAt(i, matrix);
@@ -73,32 +71,54 @@ function MetaAtoms({ data, lensRadius }: MetaArray3DProps) {
 
     return (
         <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
-            <cylinderGeometry args={[0.1, 0.1, 0.6, 8]} />
-            <meshStandardMaterial />
+            <cylinderGeometry args={[0.08, 0.08, 0.8, 16]} />
+            <meshStandardMaterial
+                metalness={0.7}
+                roughness={0.2}
+                emissive={new THREE.Color(0x000000)}
+                envMapIntensity={1}
+            />
         </instancedMesh>
     );
 }
 
 export const MetaArray3D: React.FC<MetaArray3DProps> = ({ data, lensRadius }) => {
     return (
-        <div className="w-full h-[600px] border border-slate-700/50 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.5)] relative group cursor-move">
-            <Canvas shadows dpr={[1, 2]}>
-                <PerspectiveCamera makeDefault position={[50, 50, 50]} fov={50} />
-                <OrbitControls makeDefault enablePan={true} enableZoom={true} maxPolarAngle={Math.PI / 2} />
-                <ambientLight intensity={0.6} />
-                <pointLight position={[100, 100, 100]} intensity={1.5} castShadow />
-                <directionalLight position={[-50, 50, -50]} intensity={0.5} />
-                <gridHelper args={[200, 40, '#334155', '#1e293b']} />
+        <div className="w-full h-[650px] border border-white/5 rounded-3xl bg-slate-950 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.6)] relative group cursor-move">
+            <Canvas shadows dpr={[1, 2]} gl={{ antialias: true, alpha: true }}>
+                <PerspectiveCamera makeDefault position={[60, 45, 60]} fov={45} />
+                <OrbitControls
+                    makeDefault
+                    enableDamping={true}
+                    dampingFactor={0.05}
+                    maxPolarAngle={Math.PI / 2.1}
+                />
+
+                <ambientLight intensity={0.4} />
+                <pointLight position={[100, 100, 100]} intensity={2} color="#ffffff" castShadow />
+                <spotLight position={[-50, 100, 50]} intensity={1.5} angle={0.3} penumbra={1} color="#6366f1" />
+                <directionalLight position={[0, 10, 0]} intensity={0.5} />
+
+                <gridHelper args={[240, 48, '#1e293b', '#0f172a']} position={[0, -0.1, 0]} />
 
                 <React.Suspense fallback={null}>
                     <MetaAtoms data={data} lensRadius={lensRadius} />
                 </React.Suspense>
             </Canvas>
 
-            <div className="absolute bottom-5 right-5 flex gap-2 pointer-events-none">
-                <div className="bg-slate-900/80 text-slate-300 px-4 py-2 rounded-lg text-xs font-medium border border-slate-700/50 backdrop-blur-md shadow-lg flex items-center gap-2">
-                    <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" /></svg>
-                    Drag to rotate, scroll to zoom
+            <div className="absolute top-6 left-6 flex flex-col gap-1 pointer-events-none">
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Unit Cell Visualization</span>
+                <span className="text-xs font-bold text-slate-200">Nanopillar Array Preview</span>
+            </div>
+
+            <div className="absolute bottom-6 left-6 right-6 flex justify-between items-center pointer-events-none">
+                <div className="bg-slate-900/60 text-slate-400 px-4 py-2 rounded-xl text-[10px] font-bold border border-white/5 backdrop-blur-xl shadow-2xl flex items-center gap-3">
+                    <div className="flex gap-1">
+                        <div className="w-1.5 h-1.5 rounded-full bg-slate-700"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-slate-700"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-slate-700"></div>
+                    </div>
+                    Rotate: Left Click / Zoom: Scroll / Pan: Right Click
                 </div>
             </div>
         </div>

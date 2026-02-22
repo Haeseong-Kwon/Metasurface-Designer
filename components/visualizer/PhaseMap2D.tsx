@@ -27,17 +27,24 @@ export const PhaseMap2D: React.FC<PhaseMap2DProps> = ({ data, lensRadius }) => {
         const canvasSize = canvasRef.current.width;
         const pixelSize = canvasSize / size;
 
-        // Scientific Colormap (Turbo-like approximation)
-        const getTurboColor = (v: number) => {
+        // Professional Colormap (Viridis-inspired Spectral Map)
+        const getProfessionalColor = (v: number) => {
             // v: 0.0 to 1.0 (phase normalized)
-            const r = v < 0.5 ? 0 : Math.min(255, (v - 0.5) * 510);
-            const g = v < 0.5 ? Math.min(255, v * 510) : Math.min(255, (1.0 - v) * 510);
-            const b = v > 0.5 ? 0 : Math.min(255, (0.5 - v) * 510);
+            // Custom high-contrast spectral mapping for physical data
+            const r = Math.floor(255 * (0.1 + 0.9 * Math.sin(v * Math.PI)));
+            const g = Math.floor(255 * (0.2 + 0.8 * Math.cos((v - 0.5) * Math.PI)));
+            const b = Math.floor(255 * (0.3 + 0.7 * Math.sin((v + 0.5) * Math.PI)));
 
-            // More vibrant spectral approximation
-            const hue = v * 240; // 0 (Red) to 240 (Blue)
-            return `hsl(${240 - hue}, 100%, 50%)`;
+            // We'll use a more refined HSL interpolation for smoothness
+            const hue = 280 - (v * 280); // Purple -> Blue -> Cyan -> Green -> Yellow
+            const saturation = 85 + (Math.sin(v * Math.PI) * 15);
+            const lightness = 45 + (Math.cos(v * Math.PI - Math.PI) * 15);
+
+            return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
         };
+
+        // Enable image smoothing for better gradients
+        ctx.imageSmoothingEnabled = true;
 
         // Render heatmap
         for (let i = 0; i < size; i++) {
@@ -48,16 +55,27 @@ export const PhaseMap2D: React.FC<PhaseMap2DProps> = ({ data, lensRadius }) => {
 
                 // Normalize phase [0, 2pi] -> [0, 1]
                 const normPhase = phase / (2 * Math.PI);
-                ctx.fillStyle = getTurboColor(normPhase);
-                ctx.fillRect(x, y, pixelSize + 0.5, pixelSize + 0.5);
+                ctx.fillStyle = getProfessionalColor(normPhase);
+                ctx.fillRect(x, y, pixelSize + 0.3, pixelSize + 0.3);
             }
         }
 
-        // Aperture Circle Overlay Refinement
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        // Professional Aperture Grid Overlay
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.setLineDash([5, 5]);
         ctx.lineWidth = 1;
+
+        // Horizontal and Vertical center lines
         ctx.beginPath();
-        ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - 1, 0, Math.PI * 2);
+        ctx.moveTo(0, canvasSize / 2); ctx.lineTo(canvasSize, canvasSize / 2);
+        ctx.moveTo(canvasSize / 2, 0); ctx.lineTo(canvasSize / 2, canvasSize);
+        ctx.stroke();
+
+        ctx.setLineDash([]);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - 2, 0, Math.PI * 2);
         ctx.stroke();
 
     }, [data]);
