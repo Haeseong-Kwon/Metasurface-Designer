@@ -75,23 +75,34 @@ export const PhaseMap2D: React.FC<PhaseMap2DProps> = ({ data, lensRadius }) => {
     };
 
     return (
-        <div className="relative border rounded-lg overflow-hidden bg-slate-950 p-4 shadow-xl">
-            <h3 className="text-slate-200 text-sm font-semibold mb-2">2D Phase Distribution</h3>
-            <canvas
-                ref={canvasRef}
-                width={500}
-                height={500}
-                onMouseMove={handleMouseMove}
-                onMouseLeave={() => setHoverInfo(null)}
-                className="cursor-crosshair w-full aspect-square"
-            />
+        <div className="relative rounded-2xl overflow-hidden bg-slate-900/60 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-slate-700/50 backdrop-blur-xl group cursor-crosshair">
+            <div className="flex justify-between items-center mb-4">
+                <h3 className="text-slate-200 text-sm font-bold flex items-center gap-2 tracking-wide">
+                    <svg className="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
+                    2D Target Phase Profile
+                </h3>
+            </div>
 
-            {hoverInfo && (
-                <div className="absolute bottom-6 left-6 bg-black/80 text-white p-3 rounded-md text-xs border border-white/20 backdrop-blur-md pointer-events-none">
-                    <p>Coord: ({hoverInfo.x.toFixed(2)}, {hoverInfo.y.toFixed(2)}) μm</p>
-                    <p>Phase: {hoverInfo.phase.toFixed(3)} rad</p>
-                </div>
-            )}
+            <div className="relative w-full aspect-square bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-inner group-hover:border-slate-600 transition-colors">
+                <canvas
+                    ref={canvasRef}
+                    width={500}
+                    height={500}
+                    onMouseMove={handleMouseMove}
+                    onMouseLeave={() => setHoverInfo(null)}
+                    className="w-full h-full"
+                />
+
+                {hoverInfo && (
+                    <div className="absolute bottom-4 left-4 bg-slate-900/90 text-white p-3 rounded-lg text-xs border border-slate-700 shadow-2xl backdrop-blur-sm pointer-events-none transform transition-transform animate-in fade-in slide-in-from-bottom-2">
+                        <div className="flex flex-col gap-1 font-mono">
+                            <span className="text-slate-400">X: <span className="text-blue-300">{hoverInfo.x.toFixed(2)}</span></span>
+                            <span className="text-slate-400">Y: <span className="text-cyan-300">{hoverInfo.y.toFixed(2)}</span></span>
+                            <span className="text-slate-400">Φ: <span className="text-purple-300">{hoverInfo.phase.toFixed(3)} rad</span></span>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
