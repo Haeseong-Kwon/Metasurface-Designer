@@ -70,13 +70,12 @@ function MetaAtoms({ data, lensRadius }: MetaArray3DProps) {
     });
 
     return (
-        <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
-            <cylinderGeometry args={[0.08, 0.08, 0.8, 16]} />
+        <instancedMesh ref={meshRef} args={[undefined, undefined, count]} castShadow receiveShadow>
+            <cylinderGeometry args={[0.08, 0.08, 0.8, 24]} />
             <meshStandardMaterial
-                metalness={0.7}
-                roughness={0.2}
-                emissive={new THREE.Color(0x000000)}
-                envMapIntensity={1}
+                metalness={0.9}
+                roughness={0.1}
+                envMapIntensity={2}
             />
         </instancedMesh>
     );
@@ -84,41 +83,38 @@ function MetaAtoms({ data, lensRadius }: MetaArray3DProps) {
 
 export const MetaArray3D: React.FC<MetaArray3DProps> = ({ data, lensRadius }) => {
     return (
-        <div className="w-full h-[650px] border border-white/5 rounded-3xl bg-slate-950 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.6)] relative group cursor-move">
+        <div className="w-full h-[650px] border border-white/5 rounded-2xl bg-slate-950 overflow-hidden shadow-2xl relative group cursor-move transition-all duration-500 hover:border-blue-500/20">
             <Canvas shadows dpr={[1, 2]} gl={{ antialias: true, alpha: true }}>
-                <PerspectiveCamera makeDefault position={[60, 45, 60]} fov={45} />
+                <PerspectiveCamera makeDefault position={[50, 40, 50]} fov={35} />
                 <OrbitControls
                     makeDefault
                     enableDamping={true}
-                    dampingFactor={0.05}
-                    maxPolarAngle={Math.PI / 2.1}
+                    dampingFactor={0.06}
+                    maxPolarAngle={Math.PI / 2.2}
                 />
 
-                <ambientLight intensity={0.4} />
-                <pointLight position={[100, 100, 100]} intensity={2} color="#ffffff" castShadow />
-                <spotLight position={[-50, 100, 50]} intensity={1.5} angle={0.3} penumbra={1} color="#6366f1" />
-                <directionalLight position={[0, 10, 0]} intensity={0.5} />
+                <ambientLight intensity={0.5} />
+                <pointLight position={[60, 100, 60]} intensity={3} color="#ffffff" castShadow />
+                <spotLight position={[-30, 80, 20]} intensity={2} angle={0.4} penumbra={1} color="#6366f1" />
+                <directionalLight position={[0, 20, 0]} intensity={0.8} color="#94a3b8" />
 
-                <gridHelper args={[240, 48, '#1e293b', '#0f172a']} position={[0, -0.1, 0]} />
+                <gridHelper args={[300, 60, '#1e293b', '#0f172a']} position={[0, -0.4, 0]} />
 
                 <React.Suspense fallback={null}>
                     <MetaAtoms data={data} lensRadius={lensRadius} />
                 </React.Suspense>
             </Canvas>
 
-            <div className="absolute top-6 left-6 flex flex-col gap-1 pointer-events-none">
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Unit Cell Visualization</span>
-                <span className="text-xs font-bold text-slate-200">Nanopillar Array Preview</span>
+            <div className="absolute top-8 left-8 flex flex-col gap-1 pointer-events-none">
+                <span className="text-[10px] font-black text-blue-500/80 uppercase tracking-[0.4em]">Spatial preview</span>
+                <span className="text-sm font-black text-white uppercase tracking-tight">Cylindrical α-Si Array</span>
             </div>
 
-            <div className="absolute bottom-6 left-6 right-6 flex justify-between items-center pointer-events-none">
-                <div className="bg-slate-900/60 text-slate-400 px-4 py-2 rounded-xl text-[10px] font-bold border border-white/5 backdrop-blur-xl shadow-2xl flex items-center gap-3">
-                    <div className="flex gap-1">
-                        <div className="w-1.5 h-1.5 rounded-full bg-slate-700"></div>
-                        <div className="w-1.5 h-1.5 rounded-full bg-slate-700"></div>
-                        <div className="w-1.5 h-1.5 rounded-full bg-slate-700"></div>
-                    </div>
-                    Rotate: Left Click / Zoom: Scroll / Pan: Right Click
+            <div className="absolute bottom-8 left-8 right-8 flex justify-center items-center pointer-events-none">
+                <div className="bg-slate-900/60 text-slate-400 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-[0.15em] border border-white/5 backdrop-blur-xl shadow-2xl flex items-center gap-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <span className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-blue-500"></div> Rotate (Left)</span>
+                    <span className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-indigo-500"></div> Zoom (Scroll)</span>
+                    <span className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-violet-500"></div> Pan (Right)</span>
                 </div>
             </div>
         </div>

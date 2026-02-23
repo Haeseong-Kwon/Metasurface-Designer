@@ -5,7 +5,7 @@ AI 및 최적화 알고리즘 기반 메타표면(Metasurface) 역설계(Inverse
 <div align="center">
   <img src="metasurface_demo.gif" width="90%" alt="MetaSurface Designer Pro Demo">
   <p align="center">
-    <em><b>MetaSurface Designer Pro:</b> Real-time AI-powered inverse design, performance verification, and GDSII export workflow.</em>
+    <em><b>MetaSurface Designer Pro:</b> Modern AI-powered reverse-engineering workspace with real-time 3D array visualization, Phase Map analysis, and GDSII export flow.</em>
   </p>
 </div>
 
