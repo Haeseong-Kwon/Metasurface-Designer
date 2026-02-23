@@ -3,7 +3,7 @@
 AI 및 최적화 알고리즘 기반 메타표면(Metasurface) 역설계(Inverse Design) 및 시각화 플랫폼
 
 <div align="center">
-  <img src="metasurface_demo.gif" width="90%" alt="MetaSurface Designer Pro Demo">
+  <img src="demo_smooth.gif" width="90%" alt="MetaSurface Designer Pro Demo">
   <p align="center">
     <em><b>MetaSurface Designer Pro:</b> Real-time AI-powered engineering workspace showcasing 3D spatial atomic arrangement and dynamic wavefront phase mapping.</em>
   </p>
